@@ -60,11 +60,7 @@ fi
   --with-cc-opt="$CC_OPT"\
   --with-ld-opt="$LD_OPT"\
   --with-pcre\
-  --with-ipv6\
   --with-pcre-jit\
-  --with-http_ssl_module\
-  --with-http_gzip_static_module\
   --with-http_stub_status_module
 
 make -j2
-make install

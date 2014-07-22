@@ -1,7 +1,6 @@
-local socket = require("socket")
 local redis = require("redis")
 
-math.randomseed(socket.gettime()*10000)
+math.randomseed(os.time())
 
 -- Gap for cookie expire time, 1 week
 local cookie_gap = 7*24*60*60
@@ -98,11 +97,6 @@ local function getExperiment(exp)
     rds:close()
   end
   return experiment, err
-end
-
-local function deleteExperiment(exp)
-  local rds = connectRedis()
-  local ok, err = rds:set("experiment", "")
 end
 
 local function saveExperiment(exp)
