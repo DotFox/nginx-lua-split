@@ -66,7 +66,7 @@ local function parseExperiment(exp)
   local m, err = {}, nil
   if exp then
     if type(exp) == "string" then
-      local pattern = "(?<a>[0-9]+)[|](?<b>[0-9]+)[|](?<name>[a-z]+)[|](?<use_aff>[a-z]+)[|](?<stop_after>[0-9]+)"
+      local pattern = "(?<a>[0-9]+)[|](?<b>[0-9]+)[|](?<name>[_a-z]+)[|](?<use_aff>[a-z]+)[|](?<stop_after>[0-9]+)"
       m, err = ngx.re.match(exp, pattern)
     elseif type(exp) == "table" then
       stop_after = os.time() + tonumber(exp.arg_stop_after) * 60 * 60
@@ -194,6 +194,18 @@ end
 
 function _M.renderExperimentForm()
   return simpleFormForEditExperiment
+end
+
+function _M.getQuotum(keyword)
+  local exp, err = getExperiment()
+  if not err and isValid(exp) then
+    if not keyword then
+      return math.floor(ngx.var.min_instances * (1 - (exp.a + exp.b)/100))
+    else
+      return math.floor(ngx.var.min_instances * (exp[keyword]/100))
+    end
+  end
+  return ngx.var.min_instances
 end
 
 function _M.configureUser()
