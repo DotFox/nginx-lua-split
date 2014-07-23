@@ -1,5 +1,7 @@
 #!/bin/bash
 
+NGINX_VERSION=1.5.12
+#NGINX_VERSION=1.7.2
 LUAJIT_LIB="$LUAJIT/lib"
 LUAJIT_INC="$LUAJIT/include"
 
@@ -22,7 +24,7 @@ echo "Clean up finished"
 # Grab nginx, nginx devel kit and nginx lua module
 echo "Saving sources"
 wget -q -O ./build/ngx_devel_kit.tar.gz https://github.com/simpl/ngx_devel_kit/archive/v0.2.19.tar.gz
-wget -q -O ./build/nginx.tar.gz http://nginx.org/download/nginx-1.5.12.tar.gz
+wget -q -O ./build/nginx.tar.gz http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz
 wget -q -O ./build/ngx_lua.tar.gz https://github.com/openresty/lua-nginx-module/archive/v0.9.10.tar.gz
 
 for f in `find ./build -name \*.tar.gz`; do
@@ -42,7 +44,7 @@ for f in `find . -name \*.lua | grep -v build`; do
   LD_OPT="$LD_OPT $LIB_PATH"
 done
 
-cd ./build/nginx-1.5.12
+cd ./build/nginx-$NGINX_VERSION
 NGX_DEVEL_KIT=$PWD/../ngx_devel_kit-0.2.19
 LUA_NGINX_MODULE=$PWD/../lua-nginx-module-0.9.10
 CC_OPT="-I/usr/local/include -Wno-deprecated-declarations"
@@ -61,6 +63,7 @@ fi
   --with-ld-opt="$LD_OPT"\
   --with-pcre\
   --with-pcre-jit\
+  --with-http_gzip_static_module\
   --with-http_stub_status_module
 
 make -j2
