@@ -144,6 +144,27 @@ local function needAffiliateExperiment(marker, use_aff)
   return true
 end
 
+local function isBot()
+  local result = false
+  local user_agent = ngx.req.get_headers()["User-Agent"]
+  local pattern = "^(?<product>[^/\\\\s]+)?/?(?<version>[^\\\\s]*)?(\\\\s\((?<comment>[^)]*)\))?"
+  local m, err = ngx.re.match(user_agent, pattern)
+  if err then
+    result = true
+  elseif m then
+    local from, to, err
+    for k, v in pairs(m) do
+      if v then
+        from, to, err = ngx.re.find(v, "bot|Bot", "jo")
+        if from then
+          result = true
+        end
+      end
+    end
+  end
+  return result
+end
+
 local function rollDice(a, b)
   local x = math.random(0, 100)
   if x > 100 - tonumber(a) then
@@ -165,7 +186,7 @@ end
 local function getTestKeyword(user_test_name, user_test_rule, user_test_stop, user_marker)
   local test_rule = "default"
   local current_exp, err = getExperiment()
-  if current_exp.name then
+  if not isBot() and current_exp.name then
     if needAffiliateExperiment(user_marker, current_exp.use_aff) then
       if current_exp.name == user_test_name then
         test_rule = user_test_rule
