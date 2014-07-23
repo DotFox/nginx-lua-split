@@ -144,6 +144,20 @@ local function needAffiliateExperiment(marker, use_aff)
   return true
 end
 
+local function isIrregularBot(product)
+  local result = false
+  if not product then
+    -- pass
+  elseif ngx.re.find(product, "Mediapartners-Google", "joi") then
+    result = true
+  elseif ngx.re.find(product, "NewRelicPinger", "joi") then
+    result = true
+  elseif ngx.re.find(product, "facebookexternalhit", "joi") then
+    result = true
+  end
+  return result
+end
+
 local function isBot()
   local result = false
   local user_agent = ngx.req.get_headers()["User-Agent"]
@@ -155,11 +169,13 @@ local function isBot()
     local from, to, err
     for k, v in pairs(m) do
       if v then
-        from, to, err = ngx.re.find(v, "bot|Bot", "jo")
-        if from then
+        if ngx.re.find(v, "bot", "joi") then
           result = true
         end
       end
+    end
+    if not result then
+      result = isIrregularBot(m.product)
     end
   end
   return result
