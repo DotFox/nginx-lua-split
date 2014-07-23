@@ -161,7 +161,7 @@ end
 local function isBot()
   local result = false
   local user_agent = ngx.req.get_headers()["User-Agent"]
-  local pattern = "^(?<product>[^/\\\\s]+)?/?(?<version>[^\\\\s]*)?(\\\\s\((?<comment>[^)]*)\))?"
+  local pattern = [[^(?<product>[^/\s]+)?/?(?<version>[^\s]*)?(\s\((?<comment>[^)]*)\))?]]
   local m, err = ngx.re.match(user_agent, pattern)
   if err then
     result = true
