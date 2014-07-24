@@ -1,7 +1,26 @@
 #!/bin/bash
 
+if [ $1 == '--help' ]; then
+  echo "Build nginx with lua-nginx and injected A/B engine"
+  echo ""
+  echo "Run script with:"
+  echo ""
+  echo "  PREFIX - where nginx will be installed (full path)."
+  echo "  LUAJIT - where luajit-2.1 will be installed (full path)."
+  echo "  NGINXV - nginx version (tested 1.7.2 and 1.5.12). Default - 1.5.12."
+  exit 0
+fi
+
 NGINX_VERSION=1.5.12
-#NGINX_VERSION=1.7.2
+
+if [ "$NGINXV" == "1.5.12" || "$NGINXV" == "1.7.2" ]; then
+  NGINX_VERSION=$NGINXV
+fi
+
+if [ ! -d $LUAJIT ]; then
+  echo "Luajit must be installed in specified directory."
+  exit 1
+fi
 
 ROOT=$PWD
 
@@ -36,10 +55,9 @@ echo "Complete saving sources"
 echo "Build luajit"
 cd build/luajit_src
 git checkout v2.1
-make PREFIX=$ROOT/build/luajit
-make install PREFIX=$ROOT/build/luajit
-ln -sf $ROOT/build/luajit/bin/luajit* $ROOT/build/luajit/bin/luajit
-LUAJIT=$ROOT/build/luajit
+make PREFIX=$LUAJIT
+make install PREFIX=$LUAJIT
+ln -sf $LUAJIT/bin/luajit-2.1.0-alpha $LUAJIT/bin/luajit
 LUAJIT_BIN=$LUAJIT/bin/luajit
 LUAJIT_LIB=$LUAJIT/lib
 LUAJIT_INC=$LUAJIT/include/luajit-2.1
@@ -55,6 +73,7 @@ for f in `find . -name \*.lua | grep -v build`; do
   LIB_PATH=$ROOT/build/libs/$LIB_NAME
   LD_OPT="$LD_OPT $LIB_PATH"
 done
+LD_OPT="$LD_OPT -Wl,-rpath,$LUAJIT_LIB"
 
 cd ./build/nginx-$NGINX_VERSION
 NGX_DEVEL_KIT=$PWD/../ngx_devel_kit-0.2.19
@@ -66,11 +85,16 @@ if [ ! -d $LUAJIT_LIB ] || [ ! -d $LUAJIT_INC ]; then
   exit 1
 fi
 
+PASSENGER_ADDON_DIR=`passenger-config --nginx-addon-dir`
+if [ ! -d $PASSENGER_ADDON_DIR ]; then
+  PASSENGER_ADDON_DIR=`passenger --includedir`/nginx
+fi
+
 LUAJIT_LIB=$LUAJIT_LIB LUAJIT_INC=$LUAJIT_INC ./configure \
   --prefix=$PREFIX\
   --add-module=$NGX_DEVEL_KIT\
   --add-module=$LUA_NGINX_MODULE\
-  --add-module=`passenger-config --nginx-addon-dir`\
+  --add-module=$PASSENGER_ADDON_DIR\
   --with-cc-opt="$CC_OPT"\
   --with-ld-opt="$LD_OPT"\
   --with-pcre\
