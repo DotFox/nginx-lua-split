@@ -17,8 +17,8 @@ if [ "$NGINXV" == "1.5.12" || "$NGINXV" == "1.7.2" ]; then
   NGINX_VERSION=$NGINXV
 fi
 
-if [ ! -d $LUAJIT ]; then
-  echo "Luajit must be installed in specified directory."
+if [ ! $LUAJIT ]; then
+  echo "Luajit can not be installed in specified directory."
   exit 1
 fi
 
@@ -79,11 +79,6 @@ cd ./build/nginx-$NGINX_VERSION
 NGX_DEVEL_KIT=$PWD/../ngx_devel_kit-0.2.19
 LUA_NGINX_MODULE=$PWD/../lua-nginx-module-0.9.10
 CC_OPT="-I/usr/local/include -Wno-deprecated-declarations"
-
-if [ ! -d $LUAJIT_LIB ] || [ ! -d $LUAJIT_INC ]; then
-  echo "Not configure LUAJIT_LIB and LUAJIT_INC."
-  exit 1
-fi
 
 PASSENGER_ADDON_DIR=`passenger-config --nginx-addon-dir`
 if [ ! -d $PASSENGER_ADDON_DIR ]; then
