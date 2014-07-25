@@ -233,18 +233,6 @@ function _M.renderExperimentForm()
   return simpleFormForEditExperiment
 end
 
-function _M.getQuotum(keyword)
-  local exp, err = getExperiment()
-  if not err and isValid(exp) then
-    if not keyword then
-      return math.floor(ngx.var.min_instances * (1 - (exp.a + exp.b)/100))
-    else
-      return math.floor(ngx.var.min_instances * (exp[keyword]/100))
-    end
-  end
-  return ngx.var.min_instances
-end
-
 function _M.configureUser()
   local test_rule = ngx.var.cookie_test_rule
   local test_name = ngx.var.cookie_test_name
