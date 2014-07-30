@@ -1,6 +1,6 @@
 local redis = require("redis")
 
-math.randomseed(os.time())
+math.randomseed(ngx.now())
 
 -- Gap for cookie expire time, 1 week
 local cookie_gap = 7*24*60*60
@@ -50,7 +50,7 @@ local simpleFormForEditExperiment = [[
 
 local function connectRedis()
   local rds = redis:new()
-  rds:set_timeout(50)
+  rds:set_timeout(10)
   local ok, err = rds:connect("127.0.0.1", 6379)
   if not ok then
     return nil
@@ -66,10 +66,10 @@ local function parseExperiment(exp)
   local m, err = {}, nil
   if exp then
     if type(exp) == "string" then
-      local pattern = "(?<a>[0-9]+)[|](?<b>[0-9]+)[|](?<name>[_a-z]+)[|](?<use_aff>[a-z]+)[|](?<stop_after>[0-9]+)"
-      m, err = ngx.re.match(exp, pattern)
+      local pattern = [[(?<a>\d+)\|(?<b>\d+)\|(?<name>\w+)\|(?<use_aff>(true|false))\|(?<stop_after>\d+)]]
+      m, err = ngx.re.match(exp, pattern, "jo")
     elseif type(exp) == "table" then
-      stop_after = os.time() + tonumber(exp.arg_stop_after) * 60 * 60
+      stop_after = math.floor(ngx.now()) + tonumber(exp.arg_stop_after) * 60 * 60
       m = {
         a          = exp.arg_a,
         b          = exp.arg_b,
@@ -134,11 +134,15 @@ end
 
 
 local function needAffiliateExperiment(marker, use_aff)
-  if marker and (string.match(marker, "^%d%d%d%d%d.-.") or string.match(marker, "^%d%d%d%d%d.-$")) then
-    if use_aff == "true" then
-      return true
-    elseif use_aff == "false" then
-      return false
+  local m, err
+  if type(marker) == "string" then
+    m, err = ngx.re.match(marker, [[\d{5}(.|$)]], "jo")
+    if not err and m then
+      if use_aff == "true" then
+        return true
+      elseif use_aff == "false" then
+        return false
+      end
     end
   end
   return true
@@ -238,7 +242,11 @@ function _M.configureUser()
   local test_name = ngx.var.cookie_test_name
   local test_stop = ngx.var.cookie_test_stop
   local marker = ngx.var.arg_marker or ngx.var.cookie_marker
-  return getTestKeyword(test_name, test_rule, test_stop, marker)
+  local ok, r = pcall(getTestKeyword, test_name, test_rule, test_stop, marker)
+  if not ok then
+    return "default"
+  end
+  return r
 end
 
 return _M
