@@ -13,7 +13,7 @@ fi
 
 NGINX_VERSION=1.5.12
 
-if [[ $NGINXV == 1.5.12 || $NGINXV == 1.7.2 ]]; then
+if [[ $NGINXV == 1.5.12 || $NGINXV == 1.7.2 || $NGINXV == 1.6.0 ]]; then
   NGINX_VERSION=$NGINXV
 fi
 
@@ -36,16 +36,25 @@ wget -q -O $ROOT/build/ngx_lua.tar.gz https://github.com/openresty/lua-nginx-mod
 git clone http://luajit.org/git/luajit-2.0.git $ROOT/build/luajit_src
 
 for f in `find ./build -name \*.tar.gz`; do
-  tar -zxf $f -C ./build
+  tar -zxf $f -C $ROOT/build
   rm $f
 done
+
+# Build pagespeed module
+NPS_VERSION=1.8.31.4
+wget -q -O $ROOT/build/release-${NPS_VERSION}-beta.zip https://github.com/pagespeed/ngx_pagespeed/archive/release-${NPS_VERSION}-beta.zip
+cd $ROOT/build
+unzip release-${NPS_VERSION}-beta.zip
+cd ngx_pagespeed-release-${NPS_VERSION}-beta/
+wget https://dl.google.com/dl/page-speed/psol/${NPS_VERSION}.tar.gz
+tar -xzf ${NPS_VERSION}.tar.gz  # extracts to psol/
 
 echo "Complete saving sources"
 
 echo "Build luajit"
-cd build/luajit_src
+cd $ROOT/build/luajit_src
 git checkout v2.1
-make
+make PREFIX=$LUAJIT
 if [[ $NEED_SUDO != '' ]]; then
   sudo make install PREFIX=$LUAJIT
   sudo ln -sf $LUAJIT/bin/luajit-2.1.0-alpha $LUAJIT/bin/luajit
@@ -70,8 +79,9 @@ for f in `find $ROOT/libs -name \*.lua | grep -v build`; do
 done
 
 cd $ROOT/build/nginx-$NGINX_VERSION
-NGX_DEVEL_KIT=$PWD/../ngx_devel_kit-0.2.19
-LUA_NGINX_MODULE=$PWD/../lua-nginx-module-0.9.10
+NGX_DEVEL_KIT=$ROOT/build/ngx_devel_kit-0.2.19
+LUA_NGINX_MODULE=$ROOT/build/lua-nginx-module-0.9.10
+NPS_MODULE=$ROOT/build/ngx_pagespeed-release-${NPS_VERSION}-beta
 CC_OPT="-I/usr/local/include -Wno-deprecated-declarations"
 
 PASSENGER_ADDON_DIR=`passenger-config --nginx-addon-dir`
@@ -84,10 +94,12 @@ LUAJIT_LIB=$LUAJIT_LIB LUAJIT_INC=$LUAJIT_INC ./configure \
   --add-module=$NGX_DEVEL_KIT\
   --add-module=$LUA_NGINX_MODULE\
   --add-module=$PASSENGER_ADDON_DIR\
+  --add-module=$NPS_MODULE\
   --with-cc-opt="$CC_OPT"\
   --with-ld-opt="$LD_OPT"\
   --with-pcre\
   --with-pcre-jit\
+  --with-http_ssl_module\
   --with-http_gzip_static_module\
   --with-http_stub_status_module
 
