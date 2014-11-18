@@ -60,7 +60,7 @@ local simpleFormForEditExperiment = [[
     <input id="stop_after" type="text" placeholder="Stop after">
     <input type="submit" onClick="submit();">
   </div>
-  <button value="Stop current experiment" onClick="stop();"></button>
+  <button onClick="stop();">Stop current experiment</button>
   </body>
 ]]
 
