@@ -8,6 +8,7 @@ if [[ $1 == --help ]]; then
   echo "  PREFIX - where nginx will be installed (full path)."
   echo "  LUAJIT - where luajit-2.1 will be installed (full path)."
   echo "  NGINXV - nginx version (tested 1.7.2 and 1.5.12). Default - 1.5.12."
+  echo "  NPS    - page speed module version. Default - 1.9.32.2"
   exit 0
 fi
 
@@ -17,6 +18,8 @@ if [[ $NGINXV == 1.5.12 || $NGINXV == 1.7.2 || $NGINXV == 1.6.0 ]]; then
   NGINX_VERSION=$NGINXV
 fi
 
+NPS_VERSION=1.9.32.2
+
 ROOT=$PWD
 
 # Cleanup before configure
@@ -24,7 +27,7 @@ echo "Cleanup"
 rm -rf $ROOT/build
 echo "Clean up finished"
 
-echo -n "Need sudo? Type yes or leave blanc. [ENTER]: "
+echo -n "Need sudo? Type yes or leave blank. [ENTER]: "
 read NEED_SUDO
 
 # Grab nginx, nginx devel kit and nginx lua module
@@ -41,7 +44,6 @@ for f in `find ./build -name \*.tar.gz`; do
 done
 
 # Build pagespeed module
-NPS_VERSION=1.8.31.4
 wget -q -O $ROOT/build/release-${NPS_VERSION}-beta.zip https://github.com/pagespeed/ngx_pagespeed/archive/release-${NPS_VERSION}-beta.zip
 cd $ROOT/build
 unzip release-${NPS_VERSION}-beta.zip
@@ -94,7 +96,7 @@ LUAJIT_LIB=$LUAJIT_LIB LUAJIT_INC=$LUAJIT_INC ./configure \
   --add-module=$NGX_DEVEL_KIT\
   --add-module=$LUA_NGINX_MODULE\
   --add-module=$PASSENGER_ADDON_DIR\
-  --add-module=$NPS_MODULE\
+  # --add-module=$NPS_MODULE\
   --with-cc-opt="$CC_OPT"\
   --with-ld-opt="$LD_OPT"\
   --with-pcre\
