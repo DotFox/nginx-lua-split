@@ -125,6 +125,7 @@ local function getExperiment(exp)
 end
 
 local function deleteExperiment()
+   state:set("experiment", "")
    local rds = connectRedis()
    local ok, err = rds:set("experiment", "")
    if ok == "OK" then
