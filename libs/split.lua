@@ -36,7 +36,7 @@ local simpleFormForEditExperiment = [[
     xmlHttp.open( "GET", theUrl, false );
     xmlHttp.send( null );
     return xmlHttp.responseText;
-  }
+  };
   var delete = function() {
     var xmlHTTP = null;
     var http = location.protocol;
