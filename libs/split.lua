@@ -60,7 +60,7 @@ local simpleFormForEditExperiment = [[
     <input id="stop_after" type="text" placeholder="Stop after">
     <input type="submit" onClick="submit();">
   </div>
-  <button text="Stop current experiment" onClick="delete();"></button>
+  <button value="Stop current experiment" onClick="stop();"></button>
   </body>
 ]]
 
@@ -274,8 +274,6 @@ local function getTestKeyword(user_test_name, user_test_rule, user_test_stop, us
             saveCookie(current_exp, test_rule)
          end
       end
-   else
-      eraseCookie()
    end
    return test_rule
 end
@@ -315,10 +313,12 @@ function _M.configureUser()
 
    if not ok then
       r = "default"
+      eraseCookie()
    else
       ok, r = pcall(getTestKeyword, test_name, test_rule, test_stop, marker)
       if not ok then
          r = "default"
+         eraseCookie()
       end
    end
 
