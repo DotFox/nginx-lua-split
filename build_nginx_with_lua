@@ -88,7 +88,7 @@ CC_OPT="-I/usr/local/include -Wno-deprecated-declarations"
 
 PASSENGER_ADDON_DIR=`passenger-config --nginx-addon-dir`
 if [ ! -d $PASSENGER_ADDON_DIR ]; then
-  PASSENGER_ADDON_DIR=`passenger --includedir`/nginx
+  PASSENGER_ADDON_DIR=`passenger-config --includedir`/nginx
 fi
 
 LUAJIT_LIB=$LUAJIT_LIB LUAJIT_INC=$LUAJIT_INC ./configure \
