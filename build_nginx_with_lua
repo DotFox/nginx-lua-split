@@ -96,7 +96,7 @@ LUAJIT_LIB=$LUAJIT_LIB LUAJIT_INC=$LUAJIT_INC ./configure \
   --add-module=$NGX_DEVEL_KIT\
   --add-module=$LUA_NGINX_MODULE\
   --add-module=$PASSENGER_ADDON_DIR\
-  # --add-module=$NPS_MODULE\
+  --add-module=$NPS_MODULE\
   --with-cc-opt="$CC_OPT"\
   --with-ld-opt="$LD_OPT"\
   --with-pcre\
