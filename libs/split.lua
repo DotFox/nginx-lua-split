@@ -37,6 +37,17 @@ local simpleFormForEditExperiment = [[
     xmlHttp.send( null );
     return xmlHttp.responseText;
   }
+  var delete = function() {
+    var xmlHTTP = null;
+    var http = location.protocol;
+    var slashes = http.concat("//");
+    var host = slashes.concat(window.location.hostname);
+    var theUrl = host.concat("/api/split/stop/?");
+    xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", theUrl, false );
+    xmlHttp.send( null );
+    return xmlHttp.responseText;
+  }
   </script>
   <div>
     <h1>Configure A/B Experiment</h1>
@@ -47,6 +58,7 @@ local simpleFormForEditExperiment = [[
     <input id="stop_after" type="text" placeholder="Stop after">
     <input type="submit" onClick="submit();">
   </div>
+  <button text="Stop current experiment" onClick="delete();"></button>
   </body>
 ]]
 
@@ -110,6 +122,18 @@ local function getExperiment(exp)
       end
    end
    return experiment, err
+end
+
+local function deleteExperiment()
+   local rds = connectRedis()
+   local ok, err = rds:set("experiment", "")
+   if ok == "OK" then
+      message = "The experiment was stoped."
+   else
+      message = "The experiment did not stop."
+   end
+   rds:close()
+   return message
 end
 
 local function saveExperiment(exp)
@@ -262,6 +286,11 @@ function getParamsFromCookie()
 end
 
 _M = {}
+
+function _M.stopExperiment()
+   local message = deleteExperiment()
+   return message
+end
 
 function _M.saveExperiment()
    local exp, err = getExperiment(ngx.var)
