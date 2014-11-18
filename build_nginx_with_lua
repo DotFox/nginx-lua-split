@@ -87,7 +87,7 @@ NPS_MODULE=$ROOT/build/ngx_pagespeed-release-${NPS_VERSION}-beta
 CC_OPT="-I/usr/local/include -Wno-deprecated-declarations"
 
 PASSENGER_ADDON_DIR=`passenger-config --nginx-addon-dir`
-if [ ! -d $PASSENGER_ADDON_DIR ]; then
+if [ ! -d "$PASSENGER_ADDON_DIR" ]; then
   PASSENGER_ADDON_DIR=`passenger-config --includedir`/nginx
 fi
 
