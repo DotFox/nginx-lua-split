@@ -7,14 +7,14 @@ if [[ $1 == --help ]]; then
   echo ""
   echo "  PREFIX - where nginx will be installed (full path)."
   echo "  LUAJIT - where luajit-2.1 will be installed (full path)."
-  echo "  NGINXV - nginx version (tested 1.7.2 and 1.5.12). Default - 1.5.12."
+  echo "  NGINXV - nginx version. Default - 1.5.12."
   echo "  NPS    - page speed module version. Default - 1.9.32.2"
   exit 0
 fi
 
 NGINX_VERSION=1.5.12
 
-if [[ $NGINXV == 1.5.12 || $NGINXV == 1.7.2 || $NGINXV == 1.6.0 ]]; then
+if [[ $NGINXV != '' ]]; then
   NGINX_VERSION=$NGINXV
 fi
 
@@ -79,6 +79,8 @@ for f in `find $ROOT/libs -name \*.lua | grep -v build`; do
   LIB_PATH=$ROOT/build/libs/$LIB_NAME
   LD_OPT="$LD_OPT $LIB_PATH"
 done
+
+LD_OPT="$LD_OPT -Wl,-rpath,/usr/local/lib"
 
 cd $ROOT/build/nginx-$NGINX_VERSION
 NGX_DEVEL_KIT=$ROOT/build/ngx_devel_kit-0.2.19
