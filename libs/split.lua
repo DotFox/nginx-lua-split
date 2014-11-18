@@ -10,7 +10,7 @@ local cookie_gap = 7*24*60*60
 local simpleFormForEditExperiment = [[
   <body>
   <script>
-  var submit = function() {
+  window.submit = function() {
     var xmlHTTP = null;
     var http = location.protocol;
     var slashes = http.concat("//");
@@ -37,7 +37,7 @@ local simpleFormForEditExperiment = [[
     xmlHttp.send( null );
     return xmlHttp.responseText;
   };
-  var delete = function() {
+  window.delete = function() {
     var xmlHTTP = null;
     var http = location.protocol;
     var slashes = http.concat("//");
@@ -47,7 +47,7 @@ local simpleFormForEditExperiment = [[
     xmlHttp.open( "GET", theUrl, false );
     xmlHttp.send( null );
     return xmlHttp.responseText;
-  }
+  };
   </script>
   <div>
     <h1>Configure A/B Experiment</h1>
