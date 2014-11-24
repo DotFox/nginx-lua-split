@@ -31,7 +31,7 @@ local simpleFormForEditExperiment = [[
       }
       return params
     }
-    var theUrl = host.concat("/api/split/?").concat(encode_params(get_params()));
+    var theUrl = host.concat("/api/ab/split/?").concat(encode_params(get_params()));
     xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", theUrl, false );
     xmlHttp.send( null );
@@ -44,7 +44,7 @@ local simpleFormForEditExperiment = [[
     var http = location.protocol;
     var slashes = http.concat("//");
     var host = slashes.concat(window.location.hostname);
-    var theUrl = host.concat("/api/split/stop/?");
+    var theUrl = host.concat("/api/ab/split/stop/?");
     xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", theUrl, false );
     xmlHttp.send( null );
