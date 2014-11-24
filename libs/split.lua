@@ -233,7 +233,7 @@ end
 
 local function rollDice(a, b)
    local x = math.random(0, 100)
-   if x > 100 - tonumber(a) then
+   if x >= 100 - tonumber(a) then
       return "a"
    elseif x < tonumber(b) then
       return "b"
