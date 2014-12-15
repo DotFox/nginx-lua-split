@@ -8,7 +8,6 @@ if [[ $1 == --help ]]; then
   echo "  PREFIX - where nginx will be installed (full path)."
   echo "  LUAJIT - where luajit-2.1 will be installed (full path)."
   echo "  NGINXV - nginx version. Default - 1.5.12."
-  echo "  NPS    - page speed module version. Default - 1.9.32.2"
   exit 0
 fi
 
@@ -17,8 +16,6 @@ NGINX_VERSION=1.5.12
 if [[ $NGINXV != '' ]]; then
   NGINX_VERSION=$NGINXV
 fi
-
-NPS_VERSION=1.9.32.2
 
 ROOT=$PWD
 
@@ -42,14 +39,6 @@ for f in `find ./build -name \*.tar.gz`; do
   tar -zxf $f -C $ROOT/build
   rm $f
 done
-
-# Build pagespeed module
-wget -q -O $ROOT/build/release-${NPS_VERSION}-beta.zip https://github.com/pagespeed/ngx_pagespeed/archive/release-${NPS_VERSION}-beta.zip
-cd $ROOT/build
-unzip release-${NPS_VERSION}-beta.zip
-cd ngx_pagespeed-release-${NPS_VERSION}-beta/
-wget https://dl.google.com/dl/page-speed/psol/${NPS_VERSION}.tar.gz
-tar -xzf ${NPS_VERSION}.tar.gz  # extracts to psol/
 
 echo "Complete saving sources"
 
@@ -85,7 +74,6 @@ LD_OPT="$LD_OPT -Wl,-rpath,/usr/local/lib"
 cd $ROOT/build/nginx-$NGINX_VERSION
 NGX_DEVEL_KIT=$ROOT/build/ngx_devel_kit-0.2.19
 LUA_NGINX_MODULE=$ROOT/build/lua-nginx-module-0.9.10
-NPS_MODULE=$ROOT/build/ngx_pagespeed-release-${NPS_VERSION}-beta
 CC_OPT="-I/usr/local/include -Wno-deprecated-declarations"
 
 PASSENGER_ADDON_DIR=`passenger-config --nginx-addon-dir`
@@ -98,7 +86,6 @@ LUAJIT_LIB=$LUAJIT_LIB LUAJIT_INC=$LUAJIT_INC ./configure \
   --add-module=$NGX_DEVEL_KIT\
   --add-module=$LUA_NGINX_MODULE\
   --add-module=$PASSENGER_ADDON_DIR\
-  --add-module=$NPS_MODULE\
   --with-cc-opt="$CC_OPT"\
   --with-ld-opt="$LD_OPT"\
   --with-pcre\
